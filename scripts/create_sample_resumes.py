@@ -2,7 +2,7 @@
 Script to generate synthetic sample resumes for testing.
 
 Creates a PDF and a DOCX resume with realistic content in the
-'samples/' directory. These files can be used to test the framework.
+'resumes/' directory. These files can be used to test the framework.
 
 Usage:
     python scripts/create_sample_resumes.py
@@ -14,7 +14,7 @@ from pathlib import Path
 
 # Add the src directory to the path so we can import project modules if needed
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-SAMPLES_DIR = PROJECT_ROOT / "samples"
+RESUMES_DIR = PROJECT_ROOT / "resumes"
 
 
 def create_sample_docx(output_path: Path) -> None:
@@ -230,12 +230,12 @@ def main() -> None:
     """Generate sample resume files."""
     print("Generating sample resumes...")
 
-    SAMPLES_DIR.mkdir(parents=True, exist_ok=True)
+    RESUMES_DIR.mkdir(parents=True, exist_ok=True)
 
-    create_sample_docx(SAMPLES_DIR / "jane_doe_resume.docx")
-    create_sample_pdf(SAMPLES_DIR / "john_smith_resume.pdf")
+    create_sample_docx(RESUMES_DIR / "jane_doe_resume.docx")
+    create_sample_pdf(RESUMES_DIR / "john_smith_resume.pdf")
 
-    print(f"\nSample resumes saved to: {SAMPLES_DIR}")
+    print(f"\nSample resumes saved to: {RESUMES_DIR}")
 
 
 if __name__ == "__main__":

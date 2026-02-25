@@ -5,27 +5,31 @@ A pluggable, extensible framework for extracting structured information from res
 ## Features
 
 - **Multi-format support**: Parse PDF (`.pdf`) and Word Document (`.docx`) files
-- **Pluggable extraction strategies**: Swap between regex, rule-based, and LLM-based extractors
-- **LLM integration**: Optional Gemini API integration for intelligent extraction
-- **Extensible design**: Easy to add new file formats or extraction strategies
+- **Pluggable extraction strategies**: Swap between regex, rule-based, NER, and LLM-based extractors
+- **spaCy NER integration**: Named Entity Recognition for intelligent name extraction (with heuristic fallback)
+- **LLM integration**: Optional Gemini API integration for intelligent skills extraction (with keyword fallback)
+- **CLI entry point**: Production-ready batch processor with JSON output and archiving
 - **Structured output**: Clean `ResumeData` object with JSON serialization
 
 ## Project Structure
 
 ```
+├── parse_resumes.py            # CLI entry point (run this!)
+├── resumes/                    # Drop resume files here (.pdf, .docx)
+├── output/                     # Generated: results.json + errors.json
+├── archive/                    # Generated: processed files with timestamps
 ├── src/resume_parser/          # Main package
 │   ├── parsers/                # File format parsers (PDF, DOCX)
 │   ├── extractors/             # Field extraction strategies
 │   ├── models/                 # Data classes (ResumeData)
 │   ├── llm/                    # LLM client (Gemini API)
 │   ├── coordinator.py          # ResumeExtractor orchestrator
-│   └── framework.py            # ResumeParserFramework entry point
-├── tests/                      # Test suite
+│   └── framework.py            # ResumeParserFramework engine
+├── tests/                      # Test suite (122 tests, 91% coverage)
 │   ├── unit/                   # Unit tests for each component
 │   └── integration/            # End-to-end pipeline tests
-├── examples/                   # Usage examples
 ├── scripts/                    # Utility scripts (sample generation)
-└── samples/                    # Sample resume files
+└── requirements.txt            # Dependencies
 ```
 
 ## Quick Start
@@ -34,9 +38,9 @@ A pluggable, extensible framework for extracting structured information from res
 
 ```bash
 # Create and activate a virtual environment
-python -m venv venv
-source venv/bin/activate        # macOS/Linux
-venv\Scripts\activate           # Windows
+python -m venv .venv
+.venv\Scripts\activate           # Windows
+source .venv/bin/activate        # macOS/Linux
 
 # Install dependencies
 pip install -r requirements.txt
@@ -45,16 +49,28 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-### 2. Generate Sample Resumes
+### 2. Install spaCy Model (Optional — for NER-based name extraction)
 
 ```bash
-python scripts/create_sample_resumes.py
+python -m spacy download en_core_web_sm
 ```
 
-### 3. Run the Examples
+> If spaCy is not installed, the framework automatically falls back to heuristic-based name extraction.
+
+### 3. Run the Parser
 
 ```bash
-python examples/usage_example.py
+# Parse all resumes in the resumes/ folder
+python parse_resumes.py
+
+# Parse with custom directories
+python parse_resumes.py --input-dir my_resumes/ --output-dir my_output/
+
+# Skip LLM (use keyword matching for skills)
+python parse_resumes.py --no-llm
+
+# Skip archiving (leave files in place)
+python parse_resumes.py --no-archive
 ```
 
 ### 4. (Optional) Set Up Gemini API for LLM Extractors
@@ -67,85 +83,52 @@ cp .env.example .env
 # Get a free key at: https://aistudio.google.com/apikey
 ```
 
-## Usage
+## CLI Usage
 
-### Example 1: Parse a Word Resume
+```
+usage: parse_resumes [-h] [--input-dir INPUT_DIR] [--output-dir OUTPUT_DIR]
+                     [--archive-dir ARCHIVE_DIR] [--no-archive] [--no-llm]
 
-```python
-from resume_parser import ResumeExtractor, ResumeParserFramework
-from resume_parser.extractors import (
-    RegexEmailExtractor,
-    RuleBasedNameExtractor,
-    KeywordSkillsExtractor,
-)
-from resume_parser.parsers import WordParser
+Scan a folder for resumes and extract structured data.
 
-# Configure field extractors
-extractors = {
-    "name": RuleBasedNameExtractor(),
-    "email": RegexEmailExtractor(),
-    "skills": KeywordSkillsExtractor(),
-}
-
-# Set up the framework
-resume_extractor = ResumeExtractor(extractors)
-framework = ResumeParserFramework(
-    resume_extractor=resume_extractor,
-    parser=WordParser(),
-)
-
-# Parse a resume
-result = framework.parse_resume("samples/jane_doe_resume.docx")
-print(result.to_json())
+options:
+  --input-dir     Directory to scan for resume files (default: resumes/)
+  --output-dir    Directory for output JSON files (default: output/)
+  --archive-dir   Directory for archived resumes (default: archive/)
+  --no-archive    Skip archiving processed files
+  --no-llm        Force keyword-only skills extraction
 ```
 
-### Example 2: Parse a PDF Resume (Auto-Detect Format)
+### Workflow
 
-```python
-from resume_parser import ResumeExtractor, ResumeParserFramework
-from resume_parser.extractors import (
-    RegexEmailExtractor,
-    RuleBasedNameExtractor,
-    KeywordSkillsExtractor,
-)
+1. Drop `.pdf` / `.docx` files into the `resumes/` folder
+2. Run `python parse_resumes.py`
+3. Check `output/results.json` for extracted data
+4. Check `output/errors.json` for any failures
+5. Processed files are automatically moved to `archive/<timestamp>/`
 
-# Configure extractors
-extractors = {
-    "name": RuleBasedNameExtractor(),
-    "email": RegexEmailExtractor(),
-    "skills": KeywordSkillsExtractor(),
-}
+### Output Format
 
-# Create framework WITHOUT explicit parser (auto-detects from extension)
-resume_extractor = ResumeExtractor(extractors)
-framework = ResumeParserFramework(resume_extractor=resume_extractor)
-
-# Parse — framework auto-selects PDFParser based on .pdf extension
-result = framework.parse_resume("samples/john_smith_resume.pdf")
-print(result.to_json())
+**`output/results.json`**:
+```json
+[
+  {
+    "name": "Jane Doe",
+    "email": "jane.doe@gmail.com",
+    "skills": ["Python", "Machine Learning", "AWS", "Docker"],
+    "source_file": "jane_doe_resume.docx"
+  }
+]
 ```
 
-### Example 3: Using LLM-Based Extractors
-
-```python
-from resume_parser import ResumeExtractor, ResumeParserFramework
-from resume_parser.extractors import RegexEmailExtractor, LLMNameExtractor, LLMSkillsExtractor
-from resume_parser.llm import GeminiClient
-
-# Initialize Gemini client (reads GEMINI_API_KEY from environment)
-client = GeminiClient()
-
-# Mix strategies: LLM for name and skills, regex for email
-extractors = {
-    "name": LLMNameExtractor(client),
-    "email": RegexEmailExtractor(),
-    "skills": LLMSkillsExtractor(client),
-}
-
-resume_extractor = ResumeExtractor(extractors)
-framework = ResumeParserFramework(resume_extractor=resume_extractor)
-result = framework.parse_resume("samples/jane_doe_resume.docx")
-print(result.to_json())
+**`output/errors.json`** (only written if failures occur):
+```json
+[
+  {
+    "file": "resumes/corrupt_file.pdf",
+    "error": "Failed to extract text from PDF 'corrupt_file.pdf': ..."
+  }
+]
 ```
 
 ## Design
@@ -165,6 +148,7 @@ print(result.to_json())
 │  │               │    │  │ (Strategy Pattern)   │  │ │
 │  └──────────────┘    │  │                      │  │ │
 │                       │  │ ● RegexEmailExtractor│  │ │
+│                       │  │ ● SpacyNameExtractor │  │ │
 │                       │  │ ● RuleBasedName...  │  │ │
 │                       │  │ ● LLMNameExtractor  │  │ │
 │                       │  │ ● KeywordSkills...  │  │ │
@@ -174,10 +158,18 @@ print(result.to_json())
 └─────────────────────────────────────────────────────┘
 ```
 
+### Extraction Strategies & Fallback Logic
+
+| Field | Primary Strategy | Fallback |
+|-------|-----------------|----------|
+| **Email** | `RegexEmailExtractor` | — (always used) |
+| **Name** | `SpacyNameExtractor` (NER) | `RuleBasedNameExtractor` (if spaCy not installed) |
+| **Skills** | `LLMSkillsExtractor` (Gemini) | `KeywordSkillsExtractor` (if no API key / `--no-llm`) |
+
 ### Key Design Patterns
 
 | Pattern | Where Used | Purpose |
-|---------|-----------|---------|
+|---------|-----------|---------||
 | **Strategy** | `FieldExtractor` hierarchy | Swap extraction algorithms at runtime |
 | **Template Method** | `FileParser.parse()` | Shared validation + format-specific extraction |
 | **Dependency Injection** | `ResumeExtractor`, `ResumeParserFramework` | Loose coupling between components |
@@ -186,30 +178,30 @@ print(result.to_json())
 ## Running Tests
 
 ```bash
-# Run all tests
+# Run all tests (122 tests)
 pytest tests/ -v
+
+# Run with coverage report
+pytest tests/ -v --cov=src/resume_parser --cov-report=term-missing
 
 # Run only unit tests
 pytest tests/unit/ -v
 
 # Run only integration tests
 pytest tests/integration/ -v
-
-# Run with coverage report
-pytest tests/ -v --cov=src/resume_parser --cov-report=term-missing
 ```
 
 ## Dependencies
 
 | Package | Purpose |
-|---------|---------|
+|---------|---------||
 | `PyPDF2` | PDF text extraction |
 | `python-docx` | Word document text extraction |
-| `google-generativeai` | Gemini LLM integration |
+| `spacy` | Named Entity Recognition for name extraction (optional) |
+| `google-generativeai` | Gemini LLM integration (optional) |
 | `python-dotenv` | Environment variable management |
-| `reportlab` | PDF generation (for samples) |
-| `pytest` | Test framework |
-| `pytest-cov` | Test coverage reporting |
+| `reportlab` | PDF generation (for sample resumes) |
+| `pytest` / `pytest-cov` | Testing and coverage |
 
 ## Extending the Framework
 

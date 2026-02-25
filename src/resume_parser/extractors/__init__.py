@@ -13,6 +13,14 @@ from resume_parser.extractors.skills_extractor import (
     LLMSkillsExtractor,
 )
 
+# SpacyNameExtractor is optional — only available if spaCy is installed.
+# Import it explicitly from resume_parser.extractors.spacy_name_extractor.
+try:
+    from resume_parser.extractors.spacy_name_extractor import SpacyNameExtractor
+    _SPACY_AVAILABLE = True
+except ImportError:
+    _SPACY_AVAILABLE = False
+
 __all__ = [
     "FieldExtractor",
     "RegexEmailExtractor",
@@ -21,3 +29,7 @@ __all__ = [
     "KeywordSkillsExtractor",
     "LLMSkillsExtractor",
 ]
+
+if _SPACY_AVAILABLE:
+    __all__.append("SpacyNameExtractor")
+

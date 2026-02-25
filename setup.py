@@ -4,10 +4,10 @@ from setuptools import setup, find_packages
 
 setup(
     name="resume-parser-framework",
-    version="1.0.0",
+    version="1.1.0",
     description="A pluggable resume parsing framework with configurable extraction strategies.",
     author="Neeraj Raja",
-    url="https://github.com/rajaneeraj/rajaneeraj",
+    url="https://github.com/rajaneeraj/resume-parser-framework",
     python_requires=">=3.10",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
@@ -18,6 +18,9 @@ setup(
         "python-dotenv>=1.0.0",
     ],
     extras_require={
+        "spacy": [
+            "spacy>=3.7.0",
+        ],
         "dev": [
             "pytest>=8.0.0",
             "pytest-cov>=5.0.0",
@@ -25,3 +28,4 @@ setup(
         ],
     },
 )
+
