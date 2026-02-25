@@ -70,14 +70,14 @@ def example_1_parse_word_resume() -> None:
     # Step 4: Parse the resume
     docx_path = SAMPLES_DIR / "jane_doe_resume.docx"
     if not docx_path.exists():
-        print(f"  ⚠ Sample file not found: {docx_path}")
+        print(f"  [WARNING] Sample file not found: {docx_path}")
         print("  Run 'python scripts/create_sample_resumes.py' first.")
         return
 
     result = framework.parse_resume(str(docx_path))
 
     # Step 5: Display results
-    print("\n📄 Extracted Resume Data:")
+    print("\n[Extracted Resume Data]:")
     print(result.to_json())
     print()
 
@@ -108,14 +108,14 @@ def example_2_parse_pdf_resume() -> None:
     # Step 4: Parse the resume (auto-detects PDF format)
     pdf_path = SAMPLES_DIR / "john_smith_resume.pdf"
     if not pdf_path.exists():
-        print(f"  ⚠ Sample file not found: {pdf_path}")
+        print(f"  [WARNING] Sample file not found: {pdf_path}")
         print("  Run 'python scripts/create_sample_resumes.py' first.")
         return
 
     result = framework.parse_resume(str(pdf_path))
 
     # Step 5: Display results
-    print("\n📄 Extracted Resume Data:")
+    print("\n[Extracted Resume Data]:")
     print(result.to_json())
     print()
 
@@ -148,7 +148,7 @@ def example_3_llm_extractors() -> None:
     # result = framework.parse_resume(str(SAMPLES_DIR / "jane_doe_resume.docx"))
     # print(result.to_json())
 
-    print("  ℹ This example is commented out by default.")
+    print("  [INFO] This example is commented out by default.")
     print("  Set GEMINI_API_KEY and uncomment code to try it.\n")
 
 
