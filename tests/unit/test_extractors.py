@@ -167,6 +167,39 @@ class TestRuleBasedNameExtractor:
         result = extractor.extract(text)
         assert result == ""
 
+    def test_extract_skips_section_headings(self):
+        """Should skip common section headings like PROFESSIONAL SUMMARY."""
+        extractor = RuleBasedNameExtractor()
+        text = "PROFESSIONAL SUMMARY\nJane Doe\njane@test.com"
+        result = extractor.extract(text)
+        assert result == "Jane Doe"
+
+    def test_extract_skips_multiple_headings(self):
+        """Should skip multiple section headings before finding the name."""
+        extractor = RuleBasedNameExtractor()
+        text = "Summary\nObjective\nJohn Smith\njohn@test.com"
+        result = extractor.extract(text)
+        assert result == "John Smith"
+
+    def test_extract_strips_parenthetical_title(self):
+        """Should strip parenthetical job titles from name lines."""
+        extractor = RuleBasedNameExtractor()
+        text = "NEERAJ RAJA (Sr. Developer | AI/ML Engineer)\nneeraj@test.com"
+        result = extractor.extract(text)
+        assert result == "NEERAJ RAJA"
+
+    def test_extract_name_with_heading_then_textbox_name(self):
+        """Regression: text-box name before body heading should be found."""
+        extractor = RuleBasedNameExtractor()
+        text = (
+            "NEERAJ RAJA (Sr. Developer | AI/ML Engineer)\n"
+            "neeraj.raja@hotmail.com\n"
+            "PROFESSIONAL SUMMARY\n"
+            "An accomplished engineer..."
+        )
+        result = extractor.extract(text)
+        assert result == "NEERAJ RAJA"
+
 
 # ──────────────────────────────────────────────────────────────
 # LLMNameExtractor tests (mocked)

@@ -19,6 +19,29 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+# Common resume section headings that should never be mistaken for a name.
+_SECTION_HEADINGS = {
+    "about me",
+    "achievements",
+    "career objective",
+    "certifications",
+    "contact",
+    "contact information",
+    "core competencies",
+    "education",
+    "experience",
+    "experience and achievements",
+    "objective",
+    "professional summary",
+    "profile",
+    "projects",
+    "references",
+    "skills",
+    "summary",
+    "technical skills",
+    "work experience",
+}
+
 
 class RuleBasedNameExtractor(FieldExtractor):
     """Extracts candidate name using heuristic rules.
@@ -54,6 +77,13 @@ class RuleBasedNameExtractor(FieldExtractor):
                 continue
             if re.match(r"^[\d\(\)+\-\s]+$", cleaned):
                 continue
+            # Skip common section headings
+            if cleaned.lower() in _SECTION_HEADINGS:
+                continue
+
+            # Strip parenthetical suffixes (e.g. job titles like
+            # "NEERAJ RAJA (Sr. Developer | AI/ML Engineer)")
+            cleaned = re.sub(r"\s*\(.*\)\s*$", "", cleaned).strip()
 
             # Remove common title prefixes
             name = re.sub(
