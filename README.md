@@ -29,7 +29,9 @@ A pluggable, extensible framework for extracting structured information from res
 │   ├── unit/                   # Unit tests for each component
 │   └── integration/            # End-to-end pipeline tests
 ├── scripts/                    # Utility scripts (sample generation)
-└── requirements.txt            # Dependencies
+├── pyproject.toml              # Project config, dependencies, tool settings
+├── Makefile                    # Dev commands (make test, make lint, etc.)
+└── LICENSE                     # MIT License
 ```
 
 ## Quick Start
@@ -42,11 +44,8 @@ python -m venv .venv
 .venv\Scripts\activate           # Windows
 source .venv/bin/activate        # macOS/Linux
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Install the package in development mode
-pip install -e .
+# Install in development mode (all dependencies are in pyproject.toml)
+pip install -e ".[dev]"
 ```
 
 ### 2. Install spaCy Model (Optional — for NER-based name extraction)
