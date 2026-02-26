@@ -7,6 +7,7 @@ Word document, producing a single text string.
 
 import logging
 from pathlib import Path
+from typing import ClassVar
 
 from docx import Document
 
@@ -22,7 +23,7 @@ class WordParser(FileParser):
     and returns the combined text.
     """
 
-    supported_extensions: set[str] = {".docx"}
+    supported_extensions: ClassVar[set[str]] = {".docx"}
 
     def _extract_text(self, path: Path) -> str:
         """Extract text from paragraphs and tables of a Word document.

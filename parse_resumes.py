@@ -4,8 +4,9 @@ parse_resumes.py — Production CLI entry point for the Resume Parser Framework.
 
 Scans an input folder for .pdf and .docx resume files, extracts structured
 data (name, email, skills) using configurable strategies, and writes:
-  - output/results.json   — array of successfully parsed resumes
-  - output/errors.json    — array of {file, error} for any failures
+  - output/parsed/<name>.json — one JSON file per successfully parsed resume
+  - output/manifest.json      — index of all parsed files with run metadata
+  - output/errors.json         — array of {file, error} for any failures
 
 Successfully parsed files are moved to archive/<timestamp>/.
 
@@ -19,25 +20,43 @@ import argparse
 import json
 import logging
 import os
+import re
 import shutil
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 # Add the src directory to the Python path
 PROJECT_ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
-from resume_parser import ResumeExtractor, ResumeParserFramework, ResumeData
-from resume_parser.extractors import (
+from resume_parser import ResumeData, ResumeExtractor, ResumeParserFramework  # noqa: E402
+from resume_parser.extractors import (  # noqa: E402
+    KeywordSkillsExtractor,
     RegexEmailExtractor,
     RuleBasedNameExtractor,
-    KeywordSkillsExtractor,
 )
 
 logger = logging.getLogger(__name__)
 
 SUPPORTED_EXTENSIONS = {".pdf", ".docx"}
+
+
+def sanitize_filename(name: str) -> str:
+    """Convert a filename into a safe, filesystem-friendly base name.
+
+    Strips the extension, lowercases, replaces non-alphanumeric characters
+    with underscores, and collapses runs of underscores.
+
+    Args:
+        name: Original filename (e.g. 'John Doe Resume.pdf').
+
+    Returns:
+        Sanitized string suitable for use as a JSON filename stem.
+    """
+    stem = Path(name).stem
+    clean = re.sub(r"[^\w]+", "_", stem.lower()).strip("_")
+    return clean or "unnamed"
 
 
 def configure_logging() -> None:
@@ -150,8 +169,8 @@ def build_skills_extractor(no_llm: bool):
         api_key = os.getenv("GEMINI_API_KEY")
         if api_key and api_key != "your_api_key_here":
             try:
-                from resume_parser.llm import GeminiClient
                 from resume_parser.extractors import LLMSkillsExtractor
+                from resume_parser.llm import GeminiClient
                 client = GeminiClient(api_key=api_key)
                 logger.info("Using LLMSkillsExtractor (Gemini) for skills extraction")
                 return LLMSkillsExtractor(client)
@@ -214,8 +233,12 @@ def run(args: argparse.Namespace) -> int:
     resume_extractor = ResumeExtractor(extractors)
     framework = ResumeParserFramework(resume_extractor=resume_extractor)
 
-    # Step 3: Process each file
-    results: list[dict] = []
+    # Step 3: Prepare output directories
+    parsed_dir = args.output_dir / "parsed"
+    parsed_dir.mkdir(parents=True, exist_ok=True)
+
+    # Step 4: Process each file — write one JSON per resume
+    parsed_files: list[dict] = []
     errors: list[dict] = []
     timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
 
@@ -225,8 +248,20 @@ def run(args: argparse.Namespace) -> int:
             data: ResumeData = framework.parse_resume(str(file_path))
             entry = data.to_dict()
             entry["source_file"] = file_path.name
-            results.append(entry)
-            logger.info("OK: %s", file_path.name)
+            parsed_at = datetime.now(timezone.utc).isoformat()
+            entry["parsed_at"] = parsed_at
+
+            # Write individual JSON file
+            safe_name = sanitize_filename(file_path.name)
+            out_file = parsed_dir / f"{safe_name}.json"
+            out_file.write_text(json.dumps(entry, indent=2), encoding="utf-8")
+            logger.info("OK: %s -> %s", file_path.name, out_file.name)
+
+            parsed_files.append({
+                "source_file": file_path.name,
+                "output_file": f"parsed/{out_file.name}",
+                "parsed_at": parsed_at,
+            })
 
             # Archive on success
             if not args.no_archive:
@@ -240,12 +275,17 @@ def run(args: argparse.Namespace) -> int:
             errors.append(error_entry)
             logger.error("FAILED: %s — %s", file_path.name, exc)
 
-    # Step 4: Write output JSON files
-    args.output_dir.mkdir(parents=True, exist_ok=True)
-
-    results_path = args.output_dir / "results.json"
-    results_path.write_text(json.dumps(results, indent=2), encoding="utf-8")
-    logger.info("Results written to %s (%d resumes)", results_path, len(results))
+    # Step 5: Write manifest and errors
+    manifest = {
+        "run_timestamp": timestamp,
+        "total_files": len(resumes),
+        "succeeded": len(parsed_files),
+        "failed": len(errors),
+        "parsed_files": parsed_files,
+    }
+    manifest_path = args.output_dir / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    logger.info("Manifest written to %s", manifest_path)
 
     if errors:
         errors_path = args.output_dir / "errors.json"
@@ -254,7 +294,7 @@ def run(args: argparse.Namespace) -> int:
 
     # Summary
     total = len(resumes)
-    ok = len(results)
+    ok = len(parsed_files)
     fail = len(errors)
     logger.info("=" * 50)
     logger.info("BATCH COMPLETE: %d/%d succeeded, %d failed", ok, total, fail)

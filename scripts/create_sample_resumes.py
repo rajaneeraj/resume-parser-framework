@@ -8,8 +8,6 @@ Usage:
     python scripts/create_sample_resumes.py
 """
 
-import os
-import sys
 from pathlib import Path
 
 # Add the src directory to the path so we can import project modules if needed

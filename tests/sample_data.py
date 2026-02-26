@@ -16,7 +16,7 @@ Natural Language Processing and Large Language Models.
 
 Experience
 Senior ML Engineer — TechCorp Inc.
-January 2021 – Present
+January 2021 - Present
 - Led development of an NLP pipeline using Python, TensorFlow, and AWS.
 - Built and deployed LLM-based summarization service using Docker and Kubernetes.
 

@@ -6,11 +6,16 @@ Provides:
 - LLMNameExtractor: Uses Gemini API for intelligent name extraction.
 """
 
+from __future__ import annotations
+
 import logging
 import re
+from typing import TYPE_CHECKING
 
 from resume_parser.extractors.base import FieldExtractor
-from resume_parser.llm.gemini_client import GeminiClient
+
+if TYPE_CHECKING:
+    from resume_parser.llm.gemini_client import GeminiClient
 
 logger = logging.getLogger(__name__)
 

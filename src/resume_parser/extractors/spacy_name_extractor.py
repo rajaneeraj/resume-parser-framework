@@ -30,7 +30,7 @@ class SpacyNameExtractor(FieldExtractor):
 
     def __init__(self, model_name: str = "en_core_web_sm"):
         try:
-            import spacy  # noqa: F811
+            import spacy
         except ImportError as exc:
             raise ImportError(
                 "spaCy is required for SpacyNameExtractor. "

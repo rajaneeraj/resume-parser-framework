@@ -3,7 +3,7 @@ Unit tests for the ResumeParserFramework.
 """
 
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -11,7 +11,6 @@ from resume_parser.coordinator import ResumeExtractor
 from resume_parser.framework import ResumeParserFramework
 from resume_parser.models.resume_data import ResumeData
 from resume_parser.parsers.base import FileParser
-from resume_parser.parsers.pdf_parser import PDFParser
 from resume_parser.parsers.word_parser import WordParser
 
 

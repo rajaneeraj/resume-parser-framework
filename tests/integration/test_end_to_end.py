@@ -10,11 +10,11 @@ from pathlib import Path
 
 import pytest
 
-from resume_parser import ResumeExtractor, ResumeParserFramework, ResumeData
+from resume_parser import ResumeData, ResumeExtractor, ResumeParserFramework
 from resume_parser.extractors import (
+    KeywordSkillsExtractor,
     RegexEmailExtractor,
     RuleBasedNameExtractor,
-    KeywordSkillsExtractor,
 )
 from resume_parser.parsers import PDFParser, WordParser
 

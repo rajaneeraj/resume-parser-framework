@@ -2,15 +2,15 @@
 Unit tests for all FieldExtractor implementations.
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
 from resume_parser.extractors.base import FieldExtractor
 from resume_parser.extractors.email_extractor import RegexEmailExtractor
 from resume_parser.extractors.name_extractor import (
-    RuleBasedNameExtractor,
     LLMNameExtractor,
+    RuleBasedNameExtractor,
 )
 from resume_parser.extractors.skills_extractor import (
     KeywordSkillsExtractor,
@@ -21,7 +21,6 @@ from tests.sample_data import (
     SAMPLE_RESUME_TEXT_MINIMAL,
     SAMPLE_RESUME_TEXT_NO_EMAIL,
 )
-
 
 # ──────────────────────────────────────────────────────────────
 # FieldExtractor ABC tests

@@ -13,9 +13,6 @@ from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 
-# Load environment variables from .env file if present
-load_dotenv()
-
 
 class GeminiClient:
     """Client for interacting with the Google Gemini API.
@@ -37,6 +34,9 @@ class GeminiClient:
         model_name: str = "gemini-2.0-flash",
         api_key: str | None = None,
     ):
+        # Load .env only when a client is constructed, not on import
+        load_dotenv()
+
         self._api_key = api_key or os.getenv("GEMINI_API_KEY")
         if not self._api_key:
             raise ValueError(

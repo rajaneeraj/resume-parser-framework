@@ -10,7 +10,6 @@ from resume_parser.parsers.base import FileParser
 from resume_parser.parsers.pdf_parser import PDFParser
 from resume_parser.parsers.word_parser import WordParser
 
-
 # ──────────────────────────────────────────────────────────────
 # FileParser ABC tests
 # ──────────────────────────────────────────────────────────────

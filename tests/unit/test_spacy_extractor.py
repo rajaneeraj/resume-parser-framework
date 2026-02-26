@@ -8,7 +8,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from resume_parser.extractors.base import FieldExtractor
 from tests.sample_data import SAMPLE_RESUME_TEXT
 
 
@@ -35,18 +34,17 @@ class TestSpacyNameExtractor:
         mock_nlp = MagicMock()
         mock_nlp.return_value = MockDoc(entities)
 
-        with patch.dict("sys.modules", {"spacy": MagicMock()}):
-            with patch(
-                "resume_parser.extractors.spacy_name_extractor.SpacyNameExtractor.__init__",
-                lambda self, *a, **kw: None,
-            ):
-                from resume_parser.extractors.spacy_name_extractor import (
-                    SpacyNameExtractor,
-                )
+        with patch.dict("sys.modules", {"spacy": MagicMock()}), patch(
+            "resume_parser.extractors.spacy_name_extractor.SpacyNameExtractor.__init__",
+            lambda self, *a, **kw: None,
+        ):
+            from resume_parser.extractors.spacy_name_extractor import (
+                SpacyNameExtractor,
+            )
 
-                extractor = SpacyNameExtractor.__new__(SpacyNameExtractor)
-                extractor._nlp = mock_nlp
-                return extractor
+            extractor = SpacyNameExtractor.__new__(SpacyNameExtractor)
+            extractor._nlp = mock_nlp
+            return extractor
 
     def test_extract_person_entity(self):
         """Should return the first PERSON entity."""

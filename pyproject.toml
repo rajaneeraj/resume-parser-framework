@@ -1,0 +1,106 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+# ──────────────────────────────────────────────────────────────
+# Project metadata
+# ──────────────────────────────────────────────────────────────
+
+[project]
+name = "resume-parser-framework"
+version = "1.1.0"
+description = "A pluggable resume parsing framework with configurable extraction strategies."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Neeraj Raja"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Text Processing",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "pypdf>=4.0.0",
+    "python-docx>=1.1.0",
+    "google-generativeai>=0.8.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.urls]
+Repository = "https://github.com/rajaneeraj/resume-parser-framework"
+
+[project.optional-dependencies]
+spacy = [
+    "spacy>=3.7.0",
+]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+    "reportlab>=4.0.0",
+    "ruff>=0.9.0",
+    "mypy>=1.10.0",
+]
+
+# ──────────────────────────────────────────────────────────────
+# Setuptools
+# ──────────────────────────────────────────────────────────────
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# ──────────────────────────────────────────────────────────────
+# Ruff — linting & formatting
+# ──────────────────────────────────────────────────────────────
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort (import sorting)
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "RUF",  # ruff-specific rules
+]
+ignore = [
+    "E501",   # line too long — handled by formatter
+    "SIM108", # ternary operator — readability preference
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["resume_parser"]
+
+# ──────────────────────────────────────────────────────────────
+# Pytest
+# ──────────────────────────────────────────────────────────────
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+
+# ──────────────────────────────────────────────────────────────
+# Mypy — type checking
+# ──────────────────────────────────────────────────────────────
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false          # gradual adoption
+check_untyped_defs = true
+ignore_missing_imports = true

@@ -4,8 +4,6 @@ Unit tests for the ResumeData dataclass.
 
 import json
 
-import pytest
-
 from resume_parser.models.resume_data import ResumeData
 
 
@@ -82,7 +80,7 @@ class TestResumeData:
 
         # 4-space indent should produce lines starting with 4 spaces
         lines = json_str.split("\n")
-        indented_lines = [l for l in lines if l.startswith("    ")]
+        indented_lines = [line for line in lines if line.startswith("    ")]
         assert len(indented_lines) > 0
 
     def test_to_json_empty_data(self):

@@ -32,8 +32,10 @@ archive/
 .DS_Store
 Thumbs.db
 
-# Testing
+# Testing & tooling
 .pytest_cache/
+.ruff_cache/
+.mypy_cache/
 htmlcov/
 .coverage
 coverage.xml

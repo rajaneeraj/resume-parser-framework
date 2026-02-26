@@ -16,7 +16,7 @@ A pluggable, extensible framework for extracting structured information from res
 ```
 ├── parse_resumes.py            # CLI entry point (run this!)
 ├── resumes/                    # Drop resume files here (.pdf, .docx)
-├── output/                     # Generated: results.json + errors.json
+├── output/                     # Generated: per-resume JSON + manifest.json
 ├── archive/                    # Generated: processed files with timestamps
 ├── src/resume_parser/          # Main package
 │   ├── parsers/                # File format parsers (PDF, DOCX)
@@ -25,7 +25,7 @@ A pluggable, extensible framework for extracting structured information from res
 │   ├── llm/                    # LLM client (Gemini API)
 │   ├── coordinator.py          # ResumeExtractor orchestrator
 │   └── framework.py            # ResumeParserFramework engine
-├── tests/                      # Test suite (122 tests, 91% coverage)
+├── tests/                      # Test suite (unit + integration)
 │   ├── unit/                   # Unit tests for each component
 │   └── integration/            # End-to-end pipeline tests
 ├── scripts/                    # Utility scripts (sample generation)
@@ -103,22 +103,41 @@ options:
 
 1. Drop `.pdf` / `.docx` files into the `resumes/` folder
 2. Run `python parse_resumes.py`
-3. Check `output/results.json` for extracted data
-4. Check `output/errors.json` for any failures
-5. Processed files are automatically moved to `archive/<timestamp>/`
+3. Check `output/parsed/` for individual JSON files (one per resume)
+4. Check `output/manifest.json` for a summary of the run
+5. Check `output/errors.json` for any failures
+6. Processed files are automatically moved to `archive/<timestamp>/`
 
 ### Output Format
 
-**`output/results.json`**:
+Each successfully parsed resume is written as an individual JSON file in `output/parsed/`:
+
+**`output/parsed/jane_doe_resume.json`**:
 ```json
-[
-  {
-    "name": "Jane Doe",
-    "email": "jane.doe@gmail.com",
-    "skills": ["Python", "Machine Learning", "AWS", "Docker"],
-    "source_file": "jane_doe_resume.docx"
-  }
-]
+{
+  "name": "Jane Doe",
+  "email": "jane.doe@gmail.com",
+  "skills": ["Python", "Machine Learning", "AWS", "Docker"],
+  "source_file": "jane_doe_resume.docx",
+  "parsed_at": "2026-02-25T20:52:00+00:00"
+}
+```
+
+**`output/manifest.json`** — run summary and index of all parsed files:
+```json
+{
+  "run_timestamp": "2026-02-25_205200",
+  "total_files": 2,
+  "succeeded": 2,
+  "failed": 0,
+  "parsed_files": [
+    {
+      "source_file": "jane_doe_resume.docx",
+      "output_file": "parsed/jane_doe_resume.json",
+      "parsed_at": "2026-02-25T20:52:00+00:00"
+    }
+  ]
+}
 ```
 
 **`output/errors.json`** (only written if failures occur):
@@ -178,7 +197,7 @@ options:
 ## Running Tests
 
 ```bash
-# Run all tests (122 tests)
+# Run all tests
 pytest tests/ -v
 
 # Run with coverage report
@@ -195,7 +214,7 @@ pytest tests/integration/ -v
 
 | Package | Purpose |
 |---------|---------||
-| `PyPDF2` | PDF text extraction |
+| `pypdf` | PDF text extraction |
 | `python-docx` | Word document text extraction |
 | `spacy` | Named Entity Recognition for name extraction (optional) |
 | `google-generativeai` | Gemini LLM integration (optional) |

@@ -1,14 +1,15 @@
 """
 PDFParser — Extracts raw text content from PDF files.
 
-Uses PyPDF2 to read each page of a PDF document and concatenate
+Uses pypdf to read each page of a PDF document and concatenate
 the text content into a single string.
 """
 
 import logging
 from pathlib import Path
+from typing import ClassVar
 
-from PyPDF2 import PdfReader
+from pypdf import PdfReader
 
 from resume_parser.parsers.base import FileParser
 
@@ -22,7 +23,7 @@ class PDFParser(FileParser):
     Handles multi-page documents and skips pages with no extractable text.
     """
 
-    supported_extensions: set[str] = {".pdf"}
+    supported_extensions: ClassVar[set[str]] = {".pdf"}
 
     def _extract_text(self, path: Path) -> str:
         """Extract text from all pages of a PDF file.

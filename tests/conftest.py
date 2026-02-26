@@ -43,8 +43,8 @@ def tmp_docx(tmp_path: Path) -> Path:
 def tmp_pdf(tmp_path: Path) -> Path:
     """Create a temporary .pdf file with sample resume content."""
     from reportlab.lib.pagesizes import letter
-    from reportlab.platypus import SimpleDocTemplate, Paragraph
     from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.platypus import Paragraph, SimpleDocTemplate
 
     file_path = tmp_path / "test_resume.pdf"
     doc = SimpleDocTemplate(str(file_path), pagesize=letter)

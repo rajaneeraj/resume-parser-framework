@@ -6,26 +6,24 @@ and archive logic using temporary directories and mocks.
 """
 
 import json
-import shutil
-from pathlib import Path
-from unittest.mock import MagicMock, patch
-
-import pytest
 
 # We need to import from the CLI module — it's at the project root,
 # so we add the project root to sys.path via conftest.py (already done).
 import sys
+from pathlib import Path
+from unittest.mock import patch
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from parse_resumes import (
-    parse_args,
-    discover_resumes,
+    archive_file,
     build_name_extractor,
     build_skills_extractor,
-    archive_file,
+    discover_resumes,
+    parse_args,
     run,
+    sanitize_filename,
 )
-
 
 # ──────────────────────────────────────────────────────────────
 # Argument parsing tests
@@ -252,7 +250,7 @@ class TestRunCLI:
         doc.save(str(path))
 
     def test_run_processes_files(self, tmp_path: Path):
-        """Should process resume files and write results.json."""
+        """Should write individual JSON per resume in output/parsed/."""
         input_dir = tmp_path / "resumes"
         input_dir.mkdir()
         self._create_test_docx(input_dir / "test.docx")
@@ -270,12 +268,23 @@ class TestRunCLI:
         exit_code = run(args)
 
         assert exit_code == 0
-        assert (output_dir / "results.json").exists()
 
-        results = json.loads((output_dir / "results.json").read_text())
-        assert len(results) == 1
-        assert results[0]["source_file"] == "test.docx"
-        assert results[0]["email"] == "test@example.com"
+        # Individual parsed file should exist
+        parsed_dir = output_dir / "parsed"
+        assert parsed_dir.is_dir()
+        parsed_files = list(parsed_dir.glob("*.json"))
+        assert len(parsed_files) == 1
+
+        data = json.loads(parsed_files[0].read_text())
+        assert data["source_file"] == "test.docx"
+        assert data["email"] == "test@example.com"
+        assert "parsed_at" in data
+
+        # Manifest should exist
+        manifest = json.loads((output_dir / "manifest.json").read_text())
+        assert manifest["succeeded"] == 1
+        assert manifest["failed"] == 0
+        assert len(manifest["parsed_files"]) == 1
 
     def test_run_no_files_returns_2(self, tmp_path: Path):
         """Should return exit code 2 when no resume files are found."""
@@ -365,6 +374,11 @@ class TestRunCLI:
         assert len(errors) == 1
         assert "bad.pdf" in errors[0]["file"]
 
+        # Manifest should reflect the failure
+        manifest = json.loads((output_dir / "manifest.json").read_text())
+        assert manifest["succeeded"] == 0
+        assert manifest["failed"] == 1
+
     def test_batch_continues_after_failure(self, tmp_path: Path):
         """Should continue processing remaining files after a failure."""
         input_dir = tmp_path / "resumes"
@@ -386,10 +400,40 @@ class TestRunCLI:
         exit_code = run(args)
 
         assert exit_code == 1  # Partial failure
-        results = json.loads((output_dir / "results.json").read_text())
-        errors = json.loads((output_dir / "errors.json").read_text())
 
-        # One success, one failure
-        assert len(results) == 1
+        # One per-file JSON for the good resume
+        parsed_files = list((output_dir / "parsed").glob("*.json"))
+        assert len(parsed_files) == 1
+        data = json.loads(parsed_files[0].read_text())
+        assert data["source_file"] == "good.docx"
+
+        # Errors for the bad file
+        errors = json.loads((output_dir / "errors.json").read_text())
         assert len(errors) == 1
-        assert results[0]["source_file"] == "good.docx"
+
+        # Manifest reflects both
+        manifest = json.loads((output_dir / "manifest.json").read_text())
+        assert manifest["succeeded"] == 1
+        assert manifest["failed"] == 1
+        assert manifest["total_files"] == 2
+
+
+# ──────────────────────────────────────────────────────────────
+# Filename sanitization tests
+# ──────────────────────────────────────────────────────────────
+
+
+class TestSanitizeFilename:
+    """Tests for the sanitize_filename helper."""
+
+    def test_basic_name(self):
+        assert sanitize_filename("resume.pdf") == "resume"
+
+    def test_spaces_and_caps(self):
+        assert sanitize_filename("John Doe Resume.docx") == "john_doe_resume"
+
+    def test_special_characters(self):
+        assert sanitize_filename("my resume (1).pdf") == "my_resume_1"
+
+    def test_dots_only_returns_unnamed(self):
+        assert sanitize_filename("...") == "unnamed"

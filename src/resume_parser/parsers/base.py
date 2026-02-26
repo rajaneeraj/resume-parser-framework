@@ -9,6 +9,7 @@ for structured information extraction.
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import ClassVar
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ class FileParser(ABC):
                               (e.g., {".pdf"}, {".docx"}).
     """
 
-    supported_extensions: set[str] = set()
+    supported_extensions: ClassVar[set[str]] = set()
 
     def parse(self, file_path: str) -> str:
         """Extract raw text content from a file.
