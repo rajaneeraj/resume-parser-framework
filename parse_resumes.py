@@ -126,8 +126,7 @@ def discover_resumes(input_dir: Path) -> list[Path]:
         return []
 
     resumes = sorted(
-        p for p in input_dir.rglob("*")
-        if p.is_file() and p.suffix.lower() in SUPPORTED_EXTENSIONS
+        p for p in input_dir.rglob("*") if p.is_file() and p.suffix.lower() in SUPPORTED_EXTENSIONS
     )
     logger.info("Found %d resume(s) in %s", len(resumes), input_dir)
     return resumes
@@ -143,13 +142,12 @@ def build_name_extractor():
     """
     try:
         from resume_parser.extractors.spacy_name_extractor import SpacyNameExtractor
+
         extractor = SpacyNameExtractor()
         logger.info("Using SpacyNameExtractor (NER) for name extraction")
         return extractor
     except ImportError:
-        logger.info(
-            "spaCy not available — falling back to RuleBasedNameExtractor"
-        )
+        logger.info("spaCy not available — falling back to RuleBasedNameExtractor")
         return RuleBasedNameExtractor()
 
 
@@ -171,6 +169,7 @@ def build_skills_extractor(no_llm: bool):
             try:
                 from resume_parser.extractors import LLMSkillsExtractor
                 from resume_parser.llm import GeminiClient
+
                 client = GeminiClient(api_key=api_key)
                 logger.info("Using LLMSkillsExtractor (Gemini) for skills extraction")
                 return LLMSkillsExtractor(client)
@@ -257,11 +256,13 @@ def run(args: argparse.Namespace) -> int:
             out_file.write_text(json.dumps(entry, indent=2), encoding="utf-8")
             logger.info("OK: %s -> %s", file_path.name, out_file.name)
 
-            parsed_files.append({
-                "source_file": file_path.name,
-                "output_file": f"parsed/{out_file.name}",
-                "parsed_at": parsed_at,
-            })
+            parsed_files.append(
+                {
+                    "source_file": file_path.name,
+                    "output_file": f"parsed/{out_file.name}",
+                    "parsed_at": parsed_at,
+                }
+            )
 
             # Archive on success
             if not args.no_archive:

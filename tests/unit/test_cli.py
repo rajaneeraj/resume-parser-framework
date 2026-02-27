@@ -69,13 +69,18 @@ class TestParseArgs:
 
     def test_all_flags_combined(self):
         """Should handle all flags together."""
-        args = parse_args([
-            "--input-dir", "in",
-            "--output-dir", "out",
-            "--archive-dir", "arch",
-            "--no-archive",
-            "--no-llm",
-        ])
+        args = parse_args(
+            [
+                "--input-dir",
+                "in",
+                "--output-dir",
+                "out",
+                "--archive-dir",
+                "arch",
+                "--no-archive",
+                "--no-llm",
+            ]
+        )
         assert args.input_dir == Path("in")
         assert args.output_dir == Path("out")
         assert args.archive_dir == Path("arch")
@@ -258,12 +263,17 @@ class TestRunCLI:
         output_dir = tmp_path / "output"
         archive_dir = tmp_path / "archive"
 
-        args = parse_args([
-            "--input-dir", str(input_dir),
-            "--output-dir", str(output_dir),
-            "--archive-dir", str(archive_dir),
-            "--no-llm",
-        ])
+        args = parse_args(
+            [
+                "--input-dir",
+                str(input_dir),
+                "--output-dir",
+                str(output_dir),
+                "--archive-dir",
+                str(archive_dir),
+                "--no-llm",
+            ]
+        )
 
         exit_code = run(args)
 
@@ -292,11 +302,15 @@ class TestRunCLI:
         input_dir.mkdir()
         output_dir = tmp_path / "output"
 
-        args = parse_args([
-            "--input-dir", str(input_dir),
-            "--output-dir", str(output_dir),
-            "--no-llm",
-        ])
+        args = parse_args(
+            [
+                "--input-dir",
+                str(input_dir),
+                "--output-dir",
+                str(output_dir),
+                "--no-llm",
+            ]
+        )
 
         exit_code = run(args)
         assert exit_code == 2
@@ -310,12 +324,17 @@ class TestRunCLI:
         output_dir = tmp_path / "output"
         archive_dir = tmp_path / "archive"
 
-        args = parse_args([
-            "--input-dir", str(input_dir),
-            "--output-dir", str(output_dir),
-            "--archive-dir", str(archive_dir),
-            "--no-llm",
-        ])
+        args = parse_args(
+            [
+                "--input-dir",
+                str(input_dir),
+                "--output-dir",
+                str(output_dir),
+                "--archive-dir",
+                str(archive_dir),
+                "--no-llm",
+            ]
+        )
 
         run(args)
 
@@ -334,13 +353,18 @@ class TestRunCLI:
         output_dir = tmp_path / "output"
         archive_dir = tmp_path / "archive"
 
-        args = parse_args([
-            "--input-dir", str(input_dir),
-            "--output-dir", str(output_dir),
-            "--archive-dir", str(archive_dir),
-            "--no-archive",
-            "--no-llm",
-        ])
+        args = parse_args(
+            [
+                "--input-dir",
+                str(input_dir),
+                "--output-dir",
+                str(output_dir),
+                "--archive-dir",
+                str(archive_dir),
+                "--no-archive",
+                "--no-llm",
+            ]
+        )
 
         run(args)
 
@@ -359,12 +383,16 @@ class TestRunCLI:
 
         output_dir = tmp_path / "output"
 
-        args = parse_args([
-            "--input-dir", str(input_dir),
-            "--output-dir", str(output_dir),
-            "--no-archive",
-            "--no-llm",
-        ])
+        args = parse_args(
+            [
+                "--input-dir",
+                str(input_dir),
+                "--output-dir",
+                str(output_dir),
+                "--no-archive",
+                "--no-llm",
+            ]
+        )
 
         exit_code = run(args)
 
@@ -390,12 +418,16 @@ class TestRunCLI:
 
         output_dir = tmp_path / "output"
 
-        args = parse_args([
-            "--input-dir", str(input_dir),
-            "--output-dir", str(output_dir),
-            "--no-archive",
-            "--no-llm",
-        ])
+        args = parse_args(
+            [
+                "--input-dir",
+                str(input_dir),
+                "--output-dir",
+                str(output_dir),
+                "--no-archive",
+                "--no-llm",
+            ]
+        )
 
         exit_code = run(args)
 

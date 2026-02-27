@@ -24,25 +24,84 @@ logger = logging.getLogger(__name__)
 # Users can provide their own list via the constructor.
 DEFAULT_SKILLS_KEYWORDS: list[str] = [
     # Programming Languages
-    "Python", "Java", "JavaScript", "TypeScript", "C++", "C#", "Go", "Rust",
-    "Ruby", "PHP", "Swift", "Kotlin", "Scala", "R", "MATLAB", "Perl",
+    "Python",
+    "Java",
+    "JavaScript",
+    "TypeScript",
+    "C++",
+    "C#",
+    "Go",
+    "Rust",
+    "Ruby",
+    "PHP",
+    "Swift",
+    "Kotlin",
+    "Scala",
+    "R",
+    "MATLAB",
+    "Perl",
     # Web Technologies
-    "HTML", "CSS", "React", "Angular", "Vue.js", "Node.js", "Django",
-    "Flask", "FastAPI", "Spring Boot", "Express.js", "Next.js",
+    "HTML",
+    "CSS",
+    "React",
+    "Angular",
+    "Vue.js",
+    "Node.js",
+    "Django",
+    "Flask",
+    "FastAPI",
+    "Spring Boot",
+    "Express.js",
+    "Next.js",
     # Data & ML
-    "Machine Learning", "Deep Learning", "NLP", "Natural Language Processing",
-    "Computer Vision", "TensorFlow", "PyTorch", "Scikit-learn", "Pandas",
-    "NumPy", "Data Analysis", "Data Science", "LLM", "Large Language Models",
-    "Generative AI", "Neural Networks",
+    "Machine Learning",
+    "Deep Learning",
+    "NLP",
+    "Natural Language Processing",
+    "Computer Vision",
+    "TensorFlow",
+    "PyTorch",
+    "Scikit-learn",
+    "Pandas",
+    "NumPy",
+    "Data Analysis",
+    "Data Science",
+    "LLM",
+    "Large Language Models",
+    "Generative AI",
+    "Neural Networks",
     # Cloud & DevOps
-    "AWS", "Azure", "GCP", "Google Cloud", "Docker", "Kubernetes",
-    "CI/CD", "Terraform", "Jenkins", "Git", "GitHub", "GitLab",
+    "AWS",
+    "Azure",
+    "GCP",
+    "Google Cloud",
+    "Docker",
+    "Kubernetes",
+    "CI/CD",
+    "Terraform",
+    "Jenkins",
+    "Git",
+    "GitHub",
+    "GitLab",
     # Databases
-    "SQL", "NoSQL", "PostgreSQL", "MySQL", "MongoDB", "Redis",
-    "Elasticsearch", "DynamoDB", "Cassandra",
+    "SQL",
+    "NoSQL",
+    "PostgreSQL",
+    "MySQL",
+    "MongoDB",
+    "Redis",
+    "Elasticsearch",
+    "DynamoDB",
+    "Cassandra",
     # Other
-    "REST API", "GraphQL", "Microservices", "Agile", "Scrum",
-    "Project Management", "Leadership", "Communication",
+    "REST API",
+    "GraphQL",
+    "Microservices",
+    "Agile",
+    "Scrum",
+    "Project Management",
+    "Leadership",
+    "Communication",
 ]
 
 
@@ -123,7 +182,7 @@ class LLMSkillsExtractor(FieldExtractor):
             "Extract a list of technical and professional skills from the "
             "following resume text. Return ONLY a valid JSON array of strings, "
             "with no extra text, explanation, or markdown formatting.\n\n"
-            "Example output: [\"Python\", \"Machine Learning\", \"AWS\"]\n\n"
+            'Example output: ["Python", "Machine Learning", "AWS"]\n\n'
             f"Resume text:\n{text}"
         )
 
@@ -137,11 +196,7 @@ class LLMSkillsExtractor(FieldExtractor):
             skills = json.loads(raw_response)
             if isinstance(skills, list):
                 # Ensure all items are strings and non-empty
-                skills = [
-                    str(s).strip()
-                    for s in skills
-                    if str(s).strip()
-                ]
+                skills = [str(s).strip() for s in skills if str(s).strip()]
                 logger.info("Skills extracted (LLM): %d found", len(skills))
                 return skills
             else:
@@ -151,7 +206,5 @@ class LLMSkillsExtractor(FieldExtractor):
                 )
                 return []
         except json.JSONDecodeError:
-            logger.warning(
-                "Failed to parse LLM response as JSON: %s", raw_response[:200]
-            )
+            logger.warning("Failed to parse LLM response as JSON: %s", raw_response[:200])
             return []

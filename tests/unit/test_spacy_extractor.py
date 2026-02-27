@@ -34,9 +34,12 @@ class TestSpacyNameExtractor:
         mock_nlp = MagicMock()
         mock_nlp.return_value = MockDoc(entities)
 
-        with patch.dict("sys.modules", {"spacy": MagicMock()}), patch(
-            "resume_parser.extractors.spacy_name_extractor.SpacyNameExtractor.__init__",
-            lambda self, *a, **kw: None,
+        with (
+            patch.dict("sys.modules", {"spacy": MagicMock()}),
+            patch(
+                "resume_parser.extractors.spacy_name_extractor.SpacyNameExtractor.__init__",
+                lambda self, *a, **kw: None,
+            ),
         ):
             from resume_parser.extractors.spacy_name_extractor import (
                 SpacyNameExtractor,

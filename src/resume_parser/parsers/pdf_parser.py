@@ -56,6 +56,4 @@ class PDFParser(FileParser):
             return "\n".join(pages_text)
 
         except Exception as exc:
-            raise RuntimeError(
-                f"Failed to extract text from PDF '{path.name}': {exc}"
-            ) from exc
+            raise RuntimeError(f"Failed to extract text from PDF '{path.name}': {exc}") from exc

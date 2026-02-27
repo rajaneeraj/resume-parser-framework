@@ -38,9 +38,7 @@ class TestResumeParserFramework:
         parser = WordParser()
         extractor = _mock_extractor()
 
-        framework = ResumeParserFramework(
-            resume_extractor=extractor, parser=parser
-        )
+        framework = ResumeParserFramework(resume_extractor=extractor, parser=parser)
         result = framework.parse_resume(str(tmp_docx))
 
         assert isinstance(result, ResumeData)
@@ -76,9 +74,7 @@ class TestResumeParserFramework:
         parser.parse.side_effect = FileNotFoundError("File not found")
         extractor = _mock_extractor()
 
-        framework = ResumeParserFramework(
-            resume_extractor=extractor, parser=parser
-        )
+        framework = ResumeParserFramework(resume_extractor=extractor, parser=parser)
 
         with pytest.raises(FileNotFoundError):
             framework.parse_resume("/nonexistent/file.pdf")
@@ -97,9 +93,7 @@ class TestResumeParserFramework:
 
     def test_parse_resume_returns_extractor_result(self, tmp_docx: Path):
         """Should return the ResumeData from the extractor."""
-        expected = ResumeData(
-            name="Custom", email="custom@test.com", skills=["Go"]
-        )
+        expected = ResumeData(name="Custom", email="custom@test.com", skills=["Go"])
         extractor = _mock_extractor(expected)
         framework = ResumeParserFramework(resume_extractor=extractor)
 

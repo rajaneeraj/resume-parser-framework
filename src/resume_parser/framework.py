@@ -117,8 +117,7 @@ class ResumeParserFramework:
         if parser_class is None:
             supported = ", ".join(_PARSER_REGISTRY.keys())
             raise ValueError(
-                f"Unsupported file extension '{suffix}'. "
-                f"Supported formats: {supported}"
+                f"Unsupported file extension '{suffix}'. Supported formats: {supported}"
             )
 
         logger.debug("Auto-detected parser for extension '%s'", suffix)

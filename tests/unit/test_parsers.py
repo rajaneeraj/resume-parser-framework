@@ -155,3 +155,54 @@ class TestWordParser:
 
         assert "Python" in text
         assert "Expert" in text
+
+    def test_parse_docx_with_textbox(self, tmp_path: Path):
+        """Should extract text from Word text boxes (w:txbxContent)."""
+        from docx import Document
+        from lxml import etree
+
+        doc = Document()
+        # Manually inject a text box into the document XML
+        w_ns = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+        wpc_ns = "http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
+        txbx_xml = f"""
+        <w:p xmlns:w="{w_ns}">
+          <w:r>
+            <w:rPr/>
+            <w:drawing>
+              <wpc:wpc xmlns:wpc="{wpc_ns}">
+                <w:txbxContent xmlns:w="{w_ns}">
+                  <w:p>
+                    <w:r><w:t>Neeraj Raja</w:t></w:r>
+                  </w:p>
+                  <w:p>
+                    <w:r><w:t>neeraj.raja@hotmail.com</w:t></w:r>
+                  </w:p>
+                </w:txbxContent>
+              </wpc:wpc>
+            </w:drawing>
+          </w:r>
+        </w:p>
+        """
+        txbx_element = etree.fromstring(txbx_xml)
+        # Insert the text box element at the beginning of the body
+        doc.element.body.insert(0, txbx_element)
+
+        # Also add a regular paragraph
+        doc.add_paragraph("PROFESSIONAL SUMMARY")
+
+        file_path = tmp_path / "textbox_resume.docx"
+        doc.save(str(file_path))
+
+        parser = WordParser()
+        text = parser.parse(str(file_path))
+
+        # Text box content should appear in extracted text
+        assert "Neeraj Raja" in text
+        assert "neeraj.raja@hotmail.com" in text
+        # Regular paragraph text should also be there
+        assert "PROFESSIONAL SUMMARY" in text
+        # Text box content should appear BEFORE paragraph content
+        neeraj_pos = text.index("Neeraj Raja")
+        summary_pos = text.index("PROFESSIONAL SUMMARY")
+        assert neeraj_pos < summary_pos
