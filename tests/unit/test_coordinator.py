@@ -123,4 +123,3 @@ class TestResumeExtractor:
         result = coordinator.extract(SAMPLE_RESUME_TEXT)
 
         assert result.name == ""
-

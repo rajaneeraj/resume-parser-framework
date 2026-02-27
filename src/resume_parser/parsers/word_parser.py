@@ -52,9 +52,7 @@ class WordParser(FileParser):
             # A set is used to de-duplicate because MC:AlternateContent
             # blocks often duplicate the same text box content.
             seen_textbox_lines: set[str] = set()
-            for txbx_para in doc.element.body.findall(
-                f".//{{{_W_NS}}}txbxContent/{{{_W_NS}}}p"
-            ):
+            for txbx_para in doc.element.body.findall(f".//{{{_W_NS}}}txbxContent/{{{_W_NS}}}p"):
                 runs = txbx_para.findall(f".//{{{_W_NS}}}t")
                 line = "".join(r.text or "" for r in runs).strip()
                 if line and line not in seen_textbox_lines:
@@ -83,9 +81,7 @@ class WordParser(FileParser):
                     if row_text:
                         parts.append(row_text)
 
-            logger.debug(
-                "Extracted %d text segments from %s", len(parts), path.name
-            )
+            logger.debug("Extracted %d text segments from %s", len(parts), path.name)
             return "\n".join(parts)
 
         except Exception as exc:

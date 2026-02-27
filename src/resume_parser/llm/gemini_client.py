@@ -77,6 +77,4 @@ class GeminiClient:
             logger.debug("Gemini response length: %d characters", len(result))
             return result
         except Exception as exc:
-            raise RuntimeError(
-                f"Gemini API call failed: {exc}"
-            ) from exc
+            raise RuntimeError(f"Gemini API call failed: {exc}") from exc

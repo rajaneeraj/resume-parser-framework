@@ -17,6 +17,7 @@ from resume_parser.extractors.skills_extractor import (
 # Import it explicitly from resume_parser.extractors.spacy_name_extractor.
 try:
     from resume_parser.extractors.spacy_name_extractor import SpacyNameExtractor  # noqa: F401
+
     _SPACY_AVAILABLE = True
 except ImportError:
     _SPACY_AVAILABLE = False
@@ -32,4 +33,3 @@ __all__ = [
 
 if _SPACY_AVAILABLE:
     __all__.append("SpacyNameExtractor")
-

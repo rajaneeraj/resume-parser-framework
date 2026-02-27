@@ -30,9 +30,7 @@ class TestEndToEndDocx:
             "skills": KeywordSkillsExtractor(),
         }
         resume_extractor = ResumeExtractor(extractors)
-        framework = ResumeParserFramework(
-            resume_extractor=resume_extractor, parser=WordParser()
-        )
+        framework = ResumeParserFramework(resume_extractor=resume_extractor, parser=WordParser())
 
         result = framework.parse_resume(str(tmp_docx))
 
@@ -66,9 +64,7 @@ class TestEndToEndDocx:
             "skills": KeywordSkillsExtractor(),
         }
         resume_extractor = ResumeExtractor(extractors)
-        framework = ResumeParserFramework(
-            resume_extractor=resume_extractor, parser=WordParser()
-        )
+        framework = ResumeParserFramework(resume_extractor=resume_extractor, parser=WordParser())
 
         result = framework.parse_resume(str(tmp_docx))
         json_str = result.to_json()
@@ -92,9 +88,7 @@ class TestEndToEndPdf:
             "skills": KeywordSkillsExtractor(),
         }
         resume_extractor = ResumeExtractor(extractors)
-        framework = ResumeParserFramework(
-            resume_extractor=resume_extractor, parser=PDFParser()
-        )
+        framework = ResumeParserFramework(resume_extractor=resume_extractor, parser=PDFParser())
 
         result = framework.parse_resume(str(tmp_pdf))
 
@@ -130,9 +124,7 @@ class TestEndToEndEdgeCases:
             "skills": KeywordSkillsExtractor(),
         }
         resume_extractor = ResumeExtractor(extractors)
-        framework = ResumeParserFramework(
-            resume_extractor=resume_extractor, parser=WordParser()
-        )
+        framework = ResumeParserFramework(resume_extractor=resume_extractor, parser=WordParser())
 
         result = framework.parse_resume(str(tmp_empty_docx))
 
@@ -146,9 +138,7 @@ class TestEndToEndEdgeCases:
         """Using a PDF parser on a DOCX file should raise an error."""
         extractors = {"name": RuleBasedNameExtractor()}
         resume_extractor = ResumeExtractor(extractors)
-        framework = ResumeParserFramework(
-            resume_extractor=resume_extractor, parser=PDFParser()
-        )
+        framework = ResumeParserFramework(resume_extractor=resume_extractor, parser=PDFParser())
 
         with pytest.raises(ValueError, match="Unsupported file extension"):
             framework.parse_resume(str(tmp_docx))

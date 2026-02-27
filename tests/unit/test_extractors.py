@@ -348,9 +348,7 @@ class TestLLMSkillsExtractor:
 
     def test_extract_handles_markdown_fences(self):
         """Should strip markdown code fences from LLM response."""
-        extractor = self._make_extractor(
-            '```json\n["Python", "Docker"]\n```'
-        )
+        extractor = self._make_extractor('```json\n["Python", "Docker"]\n```')
         result = extractor.extract(SAMPLE_RESUME_TEXT)
 
         assert result == ["Python", "Docker"]
