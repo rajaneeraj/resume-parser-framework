@@ -39,19 +39,17 @@ A pluggable, extensible framework for extracting structured information from res
 ### 1. Set Up Environment
 
 ```bash
-# Create and activate a virtual environment
-python -m venv .venv
-.venv\Scripts\activate           # Windows
-source .venv/bin/activate        # macOS/Linux
+# Install uv (if not already installed)
+# See https://docs.astral.sh/uv/getting-started/installation/
 
-# Install in development mode (all dependencies are in pyproject.toml)
-pip install -e ".[dev]"
+# Sync all dependencies (creates .venv automatically)
+uv sync --all-extras
 ```
 
 ### 2. Install spaCy Model (Optional — for NER-based name extraction)
 
 ```bash
-python -m spacy download en_core_web_sm
+uv run python -m spacy download en_core_web_sm
 ```
 
 > If spaCy is not installed, the framework automatically falls back to heuristic-based name extraction.
@@ -60,16 +58,16 @@ python -m spacy download en_core_web_sm
 
 ```bash
 # Parse all resumes in the resumes/ folder
-python parse_resumes.py
+uv run parse_resumes.py
 
 # Parse with custom directories
-python parse_resumes.py --input-dir my_resumes/ --output-dir my_output/
+uv run parse_resumes.py --input-dir my_resumes/ --output-dir my_output/
 
 # Skip LLM (use keyword matching for skills)
-python parse_resumes.py --no-llm
+uv run parse_resumes.py --no-llm
 
 # Skip archiving (leave files in place)
-python parse_resumes.py --no-archive
+uv run parse_resumes.py --no-archive
 ```
 
 ### 4. (Optional) Set Up Gemini API for LLM Extractors
@@ -101,7 +99,7 @@ options:
 ### Workflow
 
 1. Drop `.pdf` / `.docx` files into the `resumes/` folder
-2. Run `python parse_resumes.py`
+2. Run `uv run parse_resumes.py`
 3. Check `output/parsed/` for individual JSON files (one per resume)
 4. Check `output/manifest.json` for a summary of the run
 5. Check `output/errors.json` for any failures
@@ -197,16 +195,16 @@ Each successfully parsed resume is written as an individual JSON file in `output
 
 ```bash
 # Run all tests
-pytest tests/ -v
+uv run pytest tests/ -v
 
 # Run with coverage report
-pytest tests/ -v --cov=src/resume_parser --cov-report=term-missing
+uv run pytest tests/ -v --cov=src/resume_parser --cov-report=term-missing
 
 # Run only unit tests
-pytest tests/unit/ -v
+uv run pytest tests/unit/ -v
 
 # Run only integration tests
-pytest tests/integration/ -v
+uv run pytest tests/integration/ -v
 ```
 
 ## Dependencies
