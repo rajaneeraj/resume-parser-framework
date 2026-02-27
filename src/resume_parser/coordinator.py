@@ -53,6 +53,18 @@ class ResumeExtractor:
         """Return the configured field extractors (read-only)."""
         return dict(self._extractors)
 
+    @staticmethod
+    def _normalize_name(name: str) -> str:
+        """Normalize a name to title case (e.g. 'NEERAJ RAJA' -> 'Neeraj Raja').
+
+        Args:
+            name: Raw name string from an extractor.
+
+        Returns:
+            Title-cased name, or empty string if input is empty.
+        """
+        return name.strip().title() if name.strip() else ""
+
     def extract(self, text: str) -> ResumeData:
         """Run all configured extractors against the text and build ResumeData.
 
@@ -89,7 +101,7 @@ class ResumeExtractor:
                 results[field_name] = [] if field_name == FIELD_SKILLS else ""
 
         resume_data = ResumeData(
-            name=str(results.get(FIELD_NAME, "")),
+            name=self._normalize_name(str(results.get(FIELD_NAME, ""))),
             email=str(results.get(FIELD_EMAIL, "")),
             skills=list(results.get(FIELD_SKILLS, [])),
         )

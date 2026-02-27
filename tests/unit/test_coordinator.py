@@ -96,3 +96,31 @@ class TestResumeExtractor:
 
         # Original should not be affected
         assert "extra" not in coordinator.extractors
+
+    def test_extract_normalizes_name_to_title_case(self):
+        """Should normalize extracted name to title case."""
+        extractors = {
+            "name": _mock_extractor("NEERAJ RAJA"),
+            "email": _mock_extractor("neeraj@test.com"),
+        }
+        coordinator = ResumeExtractor(extractors)
+        result = coordinator.extract(SAMPLE_RESUME_TEXT)
+
+        assert result.name == "Neeraj Raja"
+
+    def test_extract_title_case_preserves_already_correct(self):
+        """Title-case normalization should not alter already correct names."""
+        extractors = {"name": _mock_extractor("Jane Doe")}
+        coordinator = ResumeExtractor(extractors)
+        result = coordinator.extract(SAMPLE_RESUME_TEXT)
+
+        assert result.name == "Jane Doe"
+
+    def test_extract_title_case_handles_empty(self):
+        """Title-case normalization should handle empty name gracefully."""
+        extractors = {"name": _mock_extractor("")}
+        coordinator = ResumeExtractor(extractors)
+        result = coordinator.extract(SAMPLE_RESUME_TEXT)
+
+        assert result.name == ""
+
